@@ -1,20 +1,48 @@
-// 策略模式
-class Strategy {
-    static bankAccount(money) {
-        return money > 50 ? money * 0.7 : money
-    }
-    static alipay(money) {
-        return money * 0.9
-    }
-    static creditCard(money) {
-        return money
+var strategies = {
+    isEmpty: function (value, errMsg) {
+        if (!value) {
+            return errMsg
+        }
+    },
+    maxLen: function (value, len, errMsg) {
+        if (value.length > Number(len)) {
+            return errMsg
+        }
     }
 }
 
-function userPay(strategy, money) {
-    return Strategy[strategy](money)
+class Validate {
+    constructor() {
+        this.cache = []
+    }
+    start() {
+        let msg
+        this.cache.forEach(c => {
+            msg = strategies[c.key].apply(this, c.arg)
+            if (msg) {
+                return msg
+            }
+        })
+        return msg
+    }
+    add(value, rules) {
+        rules.forEach(rule => {
+            const ruleArr = rule.method.split(':')
+            let argArr = [value]
+            const key = ruleArr.shift()
+            argArr = argArr.concat(ruleArr)
+            argArr.push(rule.msg)
+            this.cache.push({
+                key,
+                arg: argArr
+            })
+        })
+    }
 }
 
-console.log(userPay('bankAccount', 60))
-console.log(userPay('alipay', 60))
-console.log(userPay('creditCard', 60))
+const vali = new Validate()
+vali.add('188888', [
+    { method: 'isEmpty', msg: 'value is empty' },
+    { method: 'maxLen:10', msg: 'value is too Long' }
+])
+console.log(vali.start())

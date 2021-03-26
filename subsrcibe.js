@@ -3,10 +3,10 @@ class Publish {
     constructor() {
         this.event = {}
     }
-    emit(eventName) {
+    emit(eventName, payload) {
         if (this.event[eventName]) {
             this.event[eventName].forEach(callback => {
-                callback()
+                callback(payload)
             })
         }
     }
